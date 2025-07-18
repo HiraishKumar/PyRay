@@ -1,19 +1,19 @@
-import numpy as np
+import pygame 
 
-ROT_SPEED = 0
+pygame.init()
+screen = pygame.display.set_mode((800,600))
+clock = pygame.time.Clock()
 
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    pygame.display.set_caption("Expermental Image Draw Test")
+    dispObj = pygame.Rect((200,150),(400,300))
+    screen.fill("purple", dispObj)
+    pygame.display.flip()
+    clock.tick(60.0)
 
-rotate = 0
-vec = 0
-
-for i in range(10):
-    rotate = np.array([[np.cos(ROT_SPEED), np.sin(-ROT_SPEED)],
-                    [np.sin(ROT_SPEED), np.cos( ROT_SPEED)]])
-
-    vec = np.array([[1],
-                    [0]])
-    # test = np.sin(ROT_SPEED)
-    # print(test)
-    rotated_vec = rotate @ vec
-    print((rotated_vec))
-    ROT_SPEED +=1
+print(pygame.display.get_caption())
+pygame.quit()
