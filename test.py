@@ -12,15 +12,20 @@ CIRCLE_CORD_Y = 300
 SPEED = 5
 SPRINT = 1
 ROTATIONSPEED   = 0.08
+RAY_COUNT = 10
+FOV = 1
 
 directionX = 1.0
 directionY = 0.0
+planeX = 0.0
+planeY = FOV
 
 RotateCW = np.array([[np.cos(ROTATIONSPEED), np.sin(-ROTATIONSPEED)],
                      [np.sin(ROTATIONSPEED), np.cos( ROTATIONSPEED)]])
 RotateACW= np.array([[np.cos(-ROTATIONSPEED), np.sin(ROTATIONSPEED)],
                      [np.sin(-ROTATIONSPEED), np.cos(-ROTATIONSPEED)]])
 DirVec = np.array([[directionX],[directionY]])
+PlaVec = np.array([[planeX]    ,[planeY]])
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HIEGHT))
@@ -48,17 +53,14 @@ while running:
                 close()
                 print("Running Stopped!")
     
+    pygame.display.set_caption("Expermental Image Draw Test")
+    dispObj = pygame.Rect((0,0),(WIDTH, HIEGHT))
+    screen.fill("black", dispObj)
     SPRINT = 1
-    if keys.get(K_LSHIFT, False):
-        print("Shift Key is Pressed!")
-        SPRINT = 2
 
-    DELTA_X = SPEED * SPRINT
-    DELTA_Y = SPEED * SPRINT
     if keys.get(K_UP, False):
         print("Up Key is Pressed!")
-        directionX,directionY = DirVec.flatten()
-
+        # directionX,directionY = DirVec.flatten()
         CIRCLE_CORD_X -= directionX * SPEED
         if CIRCLE_CORD_X < 0:
             CIRCLE_CORD_X = 0
@@ -69,11 +71,11 @@ while running:
         if CIRCLE_CORD_Y < 0:
             CIRCLE_CORD_Y = 0
         if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = WIDTH
+            CIRCLE_CORD_Y = HIEGHT
     
     if keys.get(K_DOWN, False):
         print("Down Key is Pressed!")
-        directionX,directionY = DirVec.flatten()
+        # directionX,directionY = DirVec.flatten()
 
         CIRCLE_CORD_X += directionX * SPEED
         if CIRCLE_CORD_X < 0:
@@ -85,42 +87,34 @@ while running:
         if CIRCLE_CORD_Y < 0:
             CIRCLE_CORD_Y = 0
         if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = WIDTH
-        # CIRCLE_CORD_Y -= DELTA_Y
-        # if CIRCLE_CORD_Y < 0:
-        #     CIRCLE_CORD_Y = 0
-        # if CIRCLE_CORD_Y > HIEGHT:
-        #     CIRCLE_CORD_Y = WIDTH
+            CIRCLE_CORD_Y = HIEGHT
+
     
     
     if keys.get(K_LEFT, False):
         DirVec = RotateACW @ DirVec
-        directionX,directionY = DirVec.flatten()
+        PlaVec = RotateACW @ PlaVec
         print("Left Key is Pressed!")
-        # print(DirVec)
-        # CIRCLE_CORD_X -= DELTA_X
-        # if CIRCLE_CORD_X < 0:
-        #     CIRCLE_CORD_X = 0
-        # if CIRCLE_CORD_X > WIDTH:
-        #     CIRCLE_CORD_X = WIDTH
+
     
     if keys.get(K_RIGHT, False):
         DirVec = RotateCW @ DirVec
-        directionX,directionY = DirVec.flatten()
+        PlaVec = RotateCW @ PlaVec
         print("Right Key is Pressed!")
-        # print(DirVec)
-        # CIRCLE_CORD_X += DELTA_X
-        # if CIRCLE_CORD_X < 0:
-        #     CIRCLE_CORD_X = 0
-        # if CIRCLE_CORD_X > WIDTH:
-        #     CIRCLE_CORD_X = WIDTH
 
+    for i in range(2*RAY_COUNT + 1):
+        #sweeps from -1 to 1 for cameraX value
+        cameraX = (i/RAY_COUNT) - 1
+        RayDir = DirVec + (cameraX * PlaVec)
+
+        RayDirectionX, RayDirectionY = RayDir.flatten()
+        pygame.draw.line(screen,"blue", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - RayDirectionX*200, CIRCLE_CORD_Y - RayDirectionY*200),2)
+
+    planeX,planeY = PlaVec.flatten()
+    directionX,directionY = DirVec.flatten()
             
         
-    pygame.display.set_caption("Expermental Image Draw Test")
-    dispObj = pygame.Rect((0,0),(WIDTH, HIEGHT))
-    screen.fill("purple", dispObj)
-    pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 30.0,10)
+    pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 10.0,10)
     pygame.draw.line(screen,"red", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - directionX*SPEED, CIRCLE_CORD_Y - directionY*SPEED),5)
     pygame.display.flip()
     clock.tick(60.0)
