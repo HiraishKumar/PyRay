@@ -27,6 +27,13 @@ RotateACW= np.array([[np.cos(-ROTATIONSPEED), np.sin(ROTATIONSPEED)],
 DirVec = np.array([[directionX],[directionY]])
 PlaVec = np.array([[planeX]    ,[planeY]])
 
+map = np.array([[1,1,1,1,1,1,1,1],
+               [1,0,0,0,0,0,0,1],
+               [1,0,0,0,0,0,0,1],
+               [1,0,0,0,0,0,0,1],
+               [1,0,0,0,0,0,0,1],
+               [1,1,1,1,1,1,1,1]])
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HIEGHT))
 clock = pygame.time.Clock()
@@ -102,13 +109,37 @@ while running:
         PlaVec = RotateCW @ PlaVec
         print("Right Key is Pressed!")
 
-    for i in range(2*RAY_COUNT + 1):
-        #sweeps from -1 to 1 for cameraX value
-        cameraX = (i/RAY_COUNT) - 1
-        RayDir = DirVec + (cameraX * PlaVec)
+    #Draw BackGround
+    rows,   colums   = len(map), len(map[0])
+    DBackX, DBackY   = 0,0
 
+    MapBlkWid = WIDTH/colums
+    MapBlkHie = HIEGHT/rows
+
+    pygame.draw.rect(screen,"red",[0,0,400,300])
+    for row in range(rows):
+        for col in range(colums):
+            # print(f"current Cord {col},{row}")
+            if map[row,col]:
+                # print("Block HIT!")
+                pygame.draw.rect(screen,"Blue",[DBackX,DBackY,MapBlkWid,MapBlkHie])
+                
+            DBackX += MapBlkWid
+        DBackX = 0
+        DBackY += MapBlkHie
+
+    #Draw Player
+    cameraX = -1
+    for i in range(1,RAY_COUNT+1):
+        #sweeps from -1 to 1 for cameraX value
+        RayDir = DirVec + (cameraX * PlaVec)
+        cameraX += (2/RAY_COUNT)
+        
+        # Normalize RayDir Vector
+        RayDir = RayDir/np.linalg.norm(RayDir)
+        
         RayDirectionX, RayDirectionY = RayDir.flatten()
-        pygame.draw.line(screen,"blue", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - RayDirectionX*200, CIRCLE_CORD_Y - RayDirectionY*200),2)
+        pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - RayDirectionX*200, CIRCLE_CORD_Y - RayDirectionY*200),2)
 
     planeX,planeY = PlaVec.flatten()
     directionX,directionY = DirVec.flatten()
