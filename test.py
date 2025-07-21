@@ -27,12 +27,28 @@ RotateACW= np.array([[np.cos(-ROTATIONSPEED), np.sin(ROTATIONSPEED)],
 DirVec = np.array([[directionX],[directionY]])
 PlaVec = np.array([[planeX]    ,[planeY]])
 
-map = np.array([[1,1,1,1,1,1,1,1],
-               [1,0,0,0,0,0,0,1],
-               [1,0,0,0,0,0,0,1],
-               [1,0,0,0,0,0,0,1],
-               [1,0,0,0,0,0,0,1],
-               [1,1,1,1,1,1,1,1]])
+map = np.array([
+    [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+    [2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 2, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 2, 3, 2, 3, 0, 0, 2],
+    [2, 0, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+    [2, 3, 1, 0, 0, 2, 0, 0, 0, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 2, 0, 0, 0, 2],
+    [2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 2, 1, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 2],
+    [2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 2, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+    [2, 0, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3, 2, 1, 2, 0, 1],
+    [1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 2],
+    [2, 3, 1, 0, 0, 2, 0, 0, 2, 1, 3, 2, 0, 2, 0, 0, 3, 0, 3, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 2, 0, 0, 2],
+    [2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 3, 0, 1, 2, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 3, 0, 2],
+    [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
+    [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]
+])
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HIEGHT))
@@ -64,51 +80,6 @@ while running:
     dispObj = pygame.Rect((0,0),(WIDTH, HIEGHT))
     screen.fill("black", dispObj)
     SPRINT = 1
-
-    if keys.get(K_UP, False):
-        print("Up Key is Pressed!")
-        # directionX,directionY = DirVec.flatten()
-        CIRCLE_CORD_X -= directionX * SPEED
-        if CIRCLE_CORD_X < 0:
-            CIRCLE_CORD_X = 0
-        if CIRCLE_CORD_X > WIDTH:
-            CIRCLE_CORD_X = WIDTH
-
-        CIRCLE_CORD_Y -= directionY * SPEED
-        if CIRCLE_CORD_Y < 0:
-            CIRCLE_CORD_Y = 0
-        if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = HIEGHT
-    
-    if keys.get(K_DOWN, False):
-        print("Down Key is Pressed!")
-        # directionX,directionY = DirVec.flatten()
-
-        CIRCLE_CORD_X += directionX * SPEED
-        if CIRCLE_CORD_X < 0:
-            CIRCLE_CORD_X = 0
-        if CIRCLE_CORD_X > WIDTH:
-            CIRCLE_CORD_X = WIDTH
-
-        CIRCLE_CORD_Y += directionY * SPEED
-        if CIRCLE_CORD_Y < 0:
-            CIRCLE_CORD_Y = 0
-        if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = HIEGHT
-
-    
-    
-    if keys.get(K_LEFT, False):
-        DirVec = RotateACW @ DirVec
-        PlaVec = RotateACW @ PlaVec
-        print("Left Key is Pressed!")
-
-    
-    if keys.get(K_RIGHT, False):
-        DirVec = RotateCW @ DirVec
-        PlaVec = RotateCW @ PlaVec
-        print("Right Key is Pressed!")
-
     #Draw BackGround
     rows,   colums   = len(map), len(map[0])
     DBackX, DBackY   = 0,0
@@ -127,6 +98,78 @@ while running:
             DBackX += MapBlkWid
         DBackX = 0
         DBackY += MapBlkHie
+
+    if keys.get(K_UP, False):
+        print("Up Key is Pressed!")
+        # directionX,directionY = DirVec.flatten()
+        DeltaX = directionX * SPEED
+        DeltaY = directionY * SPEED
+
+        NEXT_CORD_X = CIRCLE_CORD_X + DeltaX
+        NEXT_CORD_Y = CIRCLE_CORD_Y + DeltaY
+
+        # Ideally this should never cause a out of bounds error as the 
+        # player postion will never be updated if the new postion is out of bounds 
+        CurrRow = min(int((CIRCLE_CORD_Y * (rows )) / HIEGHT),(row))
+        CurrCol = min(int((CIRCLE_CORD_X * (colums)) / WIDTH),(colums-1))
+
+        NextRow = min(int((NEXT_CORD_X * (rows )) / HIEGHT),(row))
+        NextCol = min(int((NEXT_CORD_Y * (colums)) / WIDTH),(colums-1))
+
+        print(f"Curr Cord: ({CurrCol},{CurrRow})")
+        # if (map[CurrCol,CurrRow]):
+        if (map[CurrRow,CurrCol]):
+            print("Standing on block")
+        if (map[NextRow,NextCol]):
+            print("Coliding Into Block")
+        # print(f"Curr Cord: ({CIRCLE_CORD_X},{CIRCLE_CORD_Y})")
+        CIRCLE_CORD_X -= DeltaX
+        if CIRCLE_CORD_X < 0:
+            CIRCLE_CORD_X = 0
+        if CIRCLE_CORD_X > WIDTH:
+            CIRCLE_CORD_X = WIDTH
+
+        CIRCLE_CORD_Y -= DeltaY
+        if CIRCLE_CORD_Y < 0:
+            CIRCLE_CORD_Y = 0
+        if CIRCLE_CORD_Y > HIEGHT:
+            CIRCLE_CORD_Y = HIEGHT
+    
+    if keys.get(K_DOWN, False):
+        print("Down Key is Pressed!")
+        # directionX,directionY = DirVec.flatten()
+        DeltaX = directionX * SPEED
+
+        CurrRow = CIRCLE_CORD_Y // HIEGHT
+        CurrCol = CIRCLE_CORD_X // WIDTH
+        # print(f"Curr Cord: ({CurrCol},{CurrRow})")
+        # print(f"Curr Cord: ({CIRCLE_CORD_X},{CIRCLE_CORD_Y})")
+        CIRCLE_CORD_X += DeltaX
+        if CIRCLE_CORD_X < 0:
+            CIRCLE_CORD_X = 0
+        if CIRCLE_CORD_X > WIDTH:
+            CIRCLE_CORD_X = WIDTH
+
+        DeltaY = directionY * SPEED
+        CIRCLE_CORD_Y += DeltaY
+        if CIRCLE_CORD_Y < 0:
+            CIRCLE_CORD_Y = 0
+        if CIRCLE_CORD_Y > HIEGHT:
+            CIRCLE_CORD_Y = HIEGHT
+
+    
+    
+    if keys.get(K_LEFT, False):
+        DirVec = RotateACW @ DirVec
+        PlaVec = RotateACW @ PlaVec
+        # print("Left Key is Pressed!")
+
+    
+    if keys.get(K_RIGHT, False):
+        DirVec = RotateCW @ DirVec
+        PlaVec = RotateCW @ PlaVec
+        # print("Right Key is Pressed!")
+
 
     #Draw Player
     cameraX = -1
