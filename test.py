@@ -1,4 +1,4 @@
-import pygame 
+import pygame
 from pygame.locals import *
 import numpy as np
 
@@ -6,10 +6,9 @@ import numpy as np
 keys = {}
 WIDTH = 800
 HIEGHT = 600
-CIRCLE_CORD_X = 400
-CIRCLE_CORD_Y = 300
 
-SPEED = 5
+
+SPEED = 5 # Reduced speed for better control during testing
 SPRINT = 1
 ROTATIONSPEED   = 0.08
 RAY_COUNT = 10
@@ -17,8 +16,15 @@ FOV = 1
 
 directionX = 1.0
 directionY = 0.0
+DeltaX = 0
+DeltaY = 0
 planeX = 0.0
 planeY = FOV
+
+DIRVEC_SCALAR = 1
+
+CIRCLE_CORD_X = 400
+CIRCLE_CORD_Y = 300
 
 RotateCW = np.array([[np.cos(ROTATIONSPEED), np.sin(-ROTATIONSPEED)],
                      [np.sin(ROTATIONSPEED), np.cos( ROTATIONSPEED)]])
@@ -59,7 +65,6 @@ def close():
 
 running = True
 while running:
-    #input Capturing
     for event in pygame.event.get():
         match event.type:
             case pygame.KEYDOWN:
@@ -67,7 +72,7 @@ while running:
                     close()
                     print("ESC Pressed: Running Stopped!")
                 keys[event.key] = True
-                 
+
             case pygame.KEYUP:
                 keys[event.key] = False
 
@@ -75,121 +80,102 @@ while running:
                 running = False
                 close()
                 print("Running Stopped!")
-    
-    pygame.display.set_caption("Expermental Image Draw Test")
+
+    pygame.display.set_caption("Experimental Image Draw Test")
     dispObj = pygame.Rect((0,0),(WIDTH, HIEGHT))
-    screen.fill("black", dispObj)
-    SPRINT = 1
-    #Draw BackGround
-    rows,   colums   = len(map), len(map[0])
-    DBackX, DBackY   = 0,0
-
-    MapBlkWid = WIDTH/colums
-    MapBlkHie = HIEGHT/rows
-
-    pygame.draw.rect(screen,"red",[0,0,400,300])
-    for row in range(rows):
-        for col in range(colums):
-            # print(f"current Cord {col},{row}")
-            if map[row,col]:
-                # print("Block HIT!")
-                pygame.draw.rect(screen,"Blue",[DBackX,DBackY,MapBlkWid,MapBlkHie])
-                
-            DBackX += MapBlkWid
-        DBackX = 0
-        DBackY += MapBlkHie
-
-    if keys.get(K_UP, False):
-        print("Up Key is Pressed!")
-        # directionX,directionY = DirVec.flatten()
-        DeltaX = directionX * SPEED
-        DeltaY = directionY * SPEED
-
-        NEXT_CORD_X = CIRCLE_CORD_X + DeltaX
-        NEXT_CORD_Y = CIRCLE_CORD_Y + DeltaY
-
-        # Ideally this should never cause a out of bounds error as the 
-        # player postion will never be updated if the new postion is out of bounds 
-        CurrRow = min(int((CIRCLE_CORD_Y * (rows )) / HIEGHT),(row))
-        CurrCol = min(int((CIRCLE_CORD_X * (colums)) / WIDTH),(colums-1))
-
-        NextRow = min(int((NEXT_CORD_X * (rows )) / HIEGHT),(row))
-        NextCol = min(int((NEXT_CORD_Y * (colums)) / WIDTH),(colums-1))
-
-        print(f"Curr Cord: ({CurrCol},{CurrRow})")
-        # if (map[CurrCol,CurrRow]):
-        if (map[CurrRow,CurrCol]):
-            print("Standing on block")
-        if (map[NextRow,NextCol]):
-            print("Coliding Into Block")
-        # print(f"Curr Cord: ({CIRCLE_CORD_X},{CIRCLE_CORD_Y})")
-        CIRCLE_CORD_X -= DeltaX
-        if CIRCLE_CORD_X < 0:
-            CIRCLE_CORD_X = 0
-        if CIRCLE_CORD_X > WIDTH:
-            CIRCLE_CORD_X = WIDTH
-
-        CIRCLE_CORD_Y -= DeltaY
-        if CIRCLE_CORD_Y < 0:
-            CIRCLE_CORD_Y = 0
-        if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = HIEGHT
-    
-    if keys.get(K_DOWN, False):
-        print("Down Key is Pressed!")
-        # directionX,directionY = DirVec.flatten()
-        DeltaX = directionX * SPEED
-
-        CurrRow = CIRCLE_CORD_Y // HIEGHT
-        CurrCol = CIRCLE_CORD_X // WIDTH
-        # print(f"Curr Cord: ({CurrCol},{CurrRow})")
-        # print(f"Curr Cord: ({CIRCLE_CORD_X},{CIRCLE_CORD_Y})")
-        CIRCLE_CORD_X += DeltaX
-        if CIRCLE_CORD_X < 0:
-            CIRCLE_CORD_X = 0
-        if CIRCLE_CORD_X > WIDTH:
-            CIRCLE_CORD_X = WIDTH
-
-        DeltaY = directionY * SPEED
-        CIRCLE_CORD_Y += DeltaY
-        if CIRCLE_CORD_Y < 0:
-            CIRCLE_CORD_Y = 0
-        if CIRCLE_CORD_Y > HIEGHT:
-            CIRCLE_CORD_Y = HIEGHT
-
-    
-    
-    if keys.get(K_LEFT, False):
-        DirVec = RotateACW @ DirVec
-        PlaVec = RotateACW @ PlaVec
-        # print("Left Key is Pressed!")
-
-    
-    if keys.get(K_RIGHT, False):
-        DirVec = RotateCW @ DirVec
-        PlaVec = RotateCW @ PlaVec
-        # print("Right Key is Pressed!")
-
-
-    #Draw Player
-    cameraX = -1
-    for i in range(1,RAY_COUNT+1):
-        #sweeps from -1 to 1 for cameraX value
-        RayDir = DirVec + (cameraX * PlaVec)
-        cameraX += (2/RAY_COUNT)
-        
-        # Normalize RayDir Vector
-        RayDir = RayDir/np.linalg.norm(RayDir)
-        
-        RayDirectionX, RayDirectionY = RayDir.flatten()
-        pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - RayDirectionX*200, CIRCLE_CORD_Y - RayDirectionY*200),2)
 
     planeX,planeY = PlaVec.flatten()
     directionX,directionY = DirVec.flatten()
-            
+
+    screen.fill("black", dispObj)
+
+    #Draw BackGround
+    rows,   columns   = map.shape
+    MapBlkWid = WIDTH / columns
+    MapBlkHie = HIEGHT / rows
+
+    # Draw Map
+    for row in range(rows):
+        for col in range(columns):
+            if map[row, col]: # If map value is not 0 (a wall)
+                pygame.draw.rect(screen, "Blue", [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
+
+
+
+    #Calculate player Grid Corrdinates
+    PlayerCol = int(CIRCLE_CORD_X / MapBlkWid)
+    PlayerRow = int(CIRCLE_CORD_Y / MapBlkHie)
+
+    PlayerCol = min(PlayerCol, columns - 1)
+    PlayerRow = min(PlayerRow, rows - 1)
+
+    DeltaX = 0
+    DeltaY = 0
+
+    if keys.get(K_UP, False):
+        ProbX = CIRCLE_CORD_X + directionX * SPEED
+        ProbY = CIRCLE_CORD_Y + directionY * SPEED
+
+
+        nextCol = int(ProbX / MapBlkWid)
+        nextCol =  min(nextCol, columns - 1)
+
+        if not map[PlayerRow, nextCol] :
+            DeltaX = directionX * SPEED
+
+        nextRow = int(ProbY / MapBlkHie)
+        nextRow = max(0, min(nextRow, rows - 1))
+
+        if not map[nextRow, PlayerCol] :
+            DeltaY = directionY * SPEED
+
+    if keys.get(K_DOWN, False):
+        ProbX = CIRCLE_CORD_X - directionX * SPEED
+        ProbY = CIRCLE_CORD_Y - directionY * SPEED
+
+        nextCol = int(ProbX / MapBlkWid)
+        nextCol = max(0, min(nextCol, columns - 1))
+        if map[PlayerRow, nextCol] == 0:
+            DeltaX = -directionX * SPEED
+
+        nextRow = int(ProbY / MapBlkHie)
+        nextRow = max(0, min(nextRow, rows - 1))
+        if map[nextRow, PlayerCol] == 0:
+            DeltaY = -directionY * SPEED
+
+    CIRCLE_CORD_X += DeltaX
+    CIRCLE_CORD_Y += DeltaY
+
+    # Boundary checks for screen edges
+    CIRCLE_CORD_X = max(0, min(CIRCLE_CORD_X, WIDTH))
+    CIRCLE_CORD_Y = max(0, min(CIRCLE_CORD_Y, HIEGHT))
+
+
+    if keys.get(K_LEFT, False):
+        DirVec = RotateACW @ DirVec
+        PlaVec = RotateACW @ PlaVec
+
+    if keys.get(K_RIGHT, False):
+        DirVec = RotateCW @ DirVec
+        PlaVec = RotateCW @ PlaVec
+
+    #Draw Rays
+    # cameraX = -1
+    # for i in range(1,RAY_COUNT+1):
+    #     #sweeps from -1 to 1 for cameraX value
+    #     RayDir = DirVec + (cameraX * PlaVec)
+    #     cameraX += (2/RAY_COUNT)
         
-    pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 10.0,10)
-    pygame.draw.line(screen,"red", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X - directionX*SPEED, CIRCLE_CORD_Y - directionY*SPEED),5)
+    #     # Normalize RayDir Vector
+    #     RayDir = RayDir/np.linalg.norm(RayDir)
+        
+    #     RayDirectionX, RayDirectionY = RayDir.flatten()
+    #     pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + RayDirectionX*200, CIRCLE_CORD_Y + RayDirectionY*200),2)
+
+
+    pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
+
+    pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
     pygame.display.flip()
     clock.tick(60.0)
 

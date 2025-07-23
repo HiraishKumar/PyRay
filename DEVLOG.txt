@@ -1,6 +1,13 @@
 18 JUNE 2025
     setup Basic Windowing and Display
+
 19 JUNE 2025
     added NumPy Vector Calculation
     added Tank Contols
     added initial ray sweep
+
+20 JUNE 2025
+    Cleaned Up Code
+    
+23 JUNE 2025
+    Added Collison
