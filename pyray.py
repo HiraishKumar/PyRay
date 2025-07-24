@@ -177,12 +177,12 @@ def main():
             rayDirectionY = directionY + planeY * cameraX + .000000000000001  # avoiding ZDE
 
             # In what square is the ray?
-            mapX = int(rayPositionX)
-            mapY = int(rayPositionY)
+            mapX = int(positionX)
+            mapY = int(positionY)
 
             # Delta distance calculation
-            deltaDistanceX = math.sqrt(1.0 + (rayDirectionY * rayDirectionY) / (rayDirectionX * rayDirectionX))
-            deltaDistanceY = math.sqrt(1.0 + (rayDirectionX * rayDirectionX) / (rayDirectionY * rayDirectionY))
+            deltaDistanceX = abs(1.0 / rayDirectionX)
+            deltaDistanceY = abs(1.0 / rayDirectionY)
 
             # We need sideDistanceX and Y for distance calculation. Checks quadrant
             if (rayDirectionX < 0):
