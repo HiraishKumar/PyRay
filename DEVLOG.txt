@@ -11,3 +11,7 @@
     
 23 JUNE 2025
     Added Collison
+
+24 JUNE 2025
+    Added Rays Collision part of the raycaser:
+        now rays spew from the player and hit walls and stop
