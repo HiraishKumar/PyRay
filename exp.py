@@ -9,10 +9,10 @@ WIDTH = 800
 HEIGHT = 600
 
 
-SPEED = 5 # Reduced speed for better control during testing
+SPEED = 2 
 SPRINT = 1
 ROTATIONSPEED   = 0.08
-RAY_COUNT = 100
+RAY_COUNT = 30
 FOV = 1
 
 directionX = 1.0
@@ -22,10 +22,9 @@ DeltaY = 0
 planeX = 0.0
 planeY = FOV
 
-HUD_HEIGHT = 40
-HUD_WIDTH = WIDTH
 
 DIRVEC_SCALAR = 1
+COLUMNWIDTH = 4
 
 CIRCLE_CORD_X = 400
 CIRCLE_CORD_Y = 300
@@ -60,13 +59,19 @@ map = np.array([
     [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]
 ])
 
+rows,   columns   = map.shape
+MapBlkWid = WIDTH / columns
+MapBlkHie = HEIGHT / rows
+
+HUD_HEIGHT = HEIGHT / rows
+HUD_WIDTH = WIDTH
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 def close():
     pygame.display.quit()
     pygame.quit()
-
 #Lower Hud
 scene = 1
 font = pygame.font.SysFont("Times New Roman", 20)
@@ -82,6 +87,12 @@ while running:
                     print("ESC Pressed: Running Stopped!")
                     
                 keys[event.key] = True
+
+                if event.key == K_F1:
+                    if scene == 1:
+                        scene = 2
+                    else:
+                        scene = 1 
 
             case pygame.KEYUP:
                 keys[event.key] = False
@@ -103,19 +114,6 @@ while running:
 
     screen.fill("black", dispObj)
 
-    #Draw BackGround
-    rows,   columns   = map.shape
-    MapBlkWid = WIDTH / columns
-    MapBlkHie = HEIGHT / rows
-
-    # Draw Map
-    for row in range(rows):
-        for col in range(columns):
-            if map[row, col]: # If map value is not 0 (a wall)
-                pygame.draw.rect(screen, "Blue", [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
-
-
-
     #Calculate player Grid Corrdinates
 
     PlayerXfloat = CIRCLE_CORD_X / MapBlkWid
@@ -130,11 +128,31 @@ while running:
     DeltaX = 0
     DeltaY = 0
 
+    # Draw BackGround
+    # Draw 2D Map
+    WallColors_s1 = [[],[150,0,0],[0,150,0],[0,0,150]]
+    WallColors_s2 = [[150,0,150],[150,0,0],[0,150,0],[0,0,150]]
+    if scene == 1:
+        for row in range(rows):
+            for col in range(columns):
+                BlockType = map[row, col] 
+                if BlockType: # If map value is not 0 (a wall)
+                    pygame.draw.rect(screen, WallColors_s1[BlockType], [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
+
+    # if scene == 2:
+    #     for row in range(rows):
+    #         for col in range(columns):
+    #             BlockType = map[row, col] 
+    #             if BlockType: # If map value is not 0 (a wall)
+    #                 pygame.draw.rect(screen, WallColors_s2[BlockType], [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
+
+
+
     #Draw Rays
-    cameraX = -1
-    for RayCnt in range(1,RAY_COUNT+1):
+    
+    for wall_column in range(0,WIDTH,COLUMNWIDTH):
         #sweeps from -1 to 1 for cameraX value
-        cameraX += (2/RAY_COUNT)
+        cameraX = 2 * wall_column / WIDTH - 1 
 
         RayStartX = PlayerXfloat
         RayStartY = PlayerYfloat
@@ -143,8 +161,8 @@ while running:
 
         RayDirectionX, RayDirectionY = RayDir.flatten()
 
-        deltaDistanceX = abs(1.0 / RayDirectionX)
-        deltaDistanceY = abs(1.0 / RayDirectionY)
+        deltaDistanceX = abs(1.0 / (RayDirectionX + 0.0000001))
+        deltaDistanceY = abs(1.0 / (RayDirectionY + 0.0000001))
 
         RayEndX = PlayerX
         RayEndY = PlayerY
@@ -197,15 +215,32 @@ while running:
 
         endX = CIRCLE_CORD_X + RayDeltaX * MapBlkWid
         endY = CIRCLE_CORD_Y + RayDeltaY * MapBlkHie
-
-        pygame.draw.line(screen, "purple", (CIRCLE_CORD_X, CIRCLE_CORD_Y), (endX, endY), 1)
+        if scene == 1:
+            # Draw Rays
+            pygame.draw.line(screen, "purple", (CIRCLE_CORD_X, CIRCLE_CORD_Y), (endX, endY), 1)
+        if scene == 2:
+            WallHeight = abs(int(HEIGHT/(perpWallDist + 0.0000001)))
+            DrawStart = -WallHeight/2 + HEIGHT/2
+            if DrawStart < 0:
+                DrawStart = 0
+            
+            DrawEnd = WallHeight/2 + HEIGHT/2
+            if DrawEnd > HEIGHT:
+                # DrawEnd = HEIGHT 
+                DrawEnd = HEIGHT - 1
+            color_index = map[RayEndX,RayEndY]
+            # print(f"the color index is {color_index}")
+            pygame.draw.line(screen, WallColors_s2[color_index], (wall_column, DrawStart), (wall_column, DrawEnd), COLUMNWIDTH)
   
 #--------------------------------DRAW RAY LOOP END-------------------------------
-    if keys.get(K_F1, False):
-        scene = 1
+    # if keys.get(K_F1, False):
+    #     if scene == 1:
+    #         scene = 2
+    #     else:
+    #         scene = 1 
 
-    if keys.get(K_F2, False):
-        scene = 2
+    # if keys.get(K_F2, False):
+    #     scene = 2
 
 
     if keys.get(K_UP, False):
@@ -255,9 +290,13 @@ while running:
         DirVec = RotateCW @ DirVec
         PlaVec = RotateCW @ PlaVec
 
-    pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
-
-    pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
+    if scene == 1:
+        pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
+        pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
+    
+    # if scene == 2:
+    #     pygame.draw.line(screen,"green", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
+    #     pygame.draw.circle(screen,[0,150,150], (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
 
     pygame.draw.rect(screen, (100, 100, 200), (0, HEIGHT - HUD_HEIGHT, HUD_WIDTH, HUD_WIDTH))
     screen.blit(HUD, (20, HEIGHT - 30))

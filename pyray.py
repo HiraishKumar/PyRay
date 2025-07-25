@@ -74,7 +74,7 @@ def main():
     MOVESPEED       = 0.03
 
     # Graphic Constants
-    COLUMNWIDTH     = 2
+    COLUMNWIDTH     = 4
 
     RotateCW = np.array([[np.cos(ROTATIONSPEED), np.sin(-ROTATIONSPEED)],
                          [np.sin(ROTATIONSPEED), np.cos( ROTATIONSPEED)]])
@@ -170,7 +170,7 @@ def main():
         # Starts drawing level from 0 to < WIDTH
         # column = 0
         for column in range(0,WIDTH,COLUMNWIDTH):
-            cameraX = 2.0 * column / WIDTH - 1.0
+            cameraX = 2 * column / WIDTH - 1.0
             rayPositionX = positionX
             rayPositionY = positionY
             rayDirectionX = directionX + planeX * cameraX
@@ -245,7 +245,7 @@ def main():
                         color[i] = int(v / 1.2)
 
             # Drawing the graphics
-            pygame.draw.line(screen, color, (column, drawStart), (column, drawEnd), 2)
+            pygame.draw.line(screen, color, (column, drawStart), (column, drawEnd), COLUMNWIDTH)
             # column += 2
 
         # Drawing HUD if showHUD is True
