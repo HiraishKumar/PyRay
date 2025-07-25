@@ -15,3 +15,7 @@
 24 JUNE 2025
     Added Rays Collision part of the raycaser:
         now rays spew from the player and hit walls and stop
+
+25 JUNE 2025
+    Implemented 3D part of the RayCaster with scene transiston from 2D to 3D
+    {TODO: Fix the color indexing issue on line:233}
