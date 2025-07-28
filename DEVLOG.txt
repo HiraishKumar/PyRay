@@ -18,4 +18,12 @@
 
 25 JUNE 2025
     Implemented 3D part of the RayCaster with scene transiston from 2D to 3D
-    {TODO: Fix the color indexing issue on line:233}
+    {DONE: Fix the color indexing issue on line:233}
+
+
+---------------------------PyRay V (0.1.0) DONE--------------------------------
+---------------------------PyRay V (0.2.0) START-------------------------------
+
+28 JUNE 2025
+    Created config File to modularize the Code
+    fixed color index Bug

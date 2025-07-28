@@ -9,10 +9,10 @@ WIDTH = 800
 HEIGHT = 600
 
 
-SPEED = 5 # Reduced speed for better control during testing
+SPEED = 2 
 SPRINT = 1
 ROTATIONSPEED   = 0.08
-RAY_COUNT = 100
+RAY_COUNT = 30
 FOV = 1
 
 directionX = 1.0
@@ -24,6 +24,7 @@ planeY = FOV
 
 
 DIRVEC_SCALAR = 1
+COLUMNWIDTH = 4
 
 CIRCLE_CORD_X = 400
 CIRCLE_CORD_Y = 300
@@ -105,7 +106,7 @@ while running:
         break
 
     HUD = font.render(f"Currently On Scene {scene}, To change Scene Press F1/F2", True, (0, 0, 0)) 
-    pygame.display.set_caption("Experimental Image Draw Test")
+    pygame.display.set_caption("Pyray V 0.1.0")
     dispObj = pygame.Rect((0,0),(WIDTH, HEIGHT))
 
     planeX,planeY = PlaVec.flatten()
@@ -130,7 +131,7 @@ while running:
     # Draw BackGround
     # Draw 2D Map
     WallColors_s1 = [[],[150,0,0],[0,150,0],[0,0,150]]
-    WallColors_s2 = [[],[0,150,150],[150,0,150],[150,150,0]]
+    WallColors_s2 = [[150,0,150],[150,0,0],[0,150,0],[0,0,150]]
     if scene == 1:
         for row in range(rows):
             for col in range(columns):
@@ -138,20 +139,11 @@ while running:
                 if BlockType: # If map value is not 0 (a wall)
                     pygame.draw.rect(screen, WallColors_s1[BlockType], [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
 
-    if scene == 2:
-        for row in range(rows):
-            for col in range(columns):
-                BlockType = map[row, col] 
-                if BlockType: # If map value is not 0 (a wall)
-                    pygame.draw.rect(screen, WallColors_s2[BlockType], [col * MapBlkWid, row * MapBlkHie, MapBlkWid, MapBlkHie])
-
-
-
     #Draw Rays
-    cameraX = -1
-    for RayCnt in range(1,RAY_COUNT+1):
+    
+    for wall_column in range(0,WIDTH,COLUMNWIDTH):
         #sweeps from -1 to 1 for cameraX value
-        cameraX += (2/RAY_COUNT)
+        cameraX = 2 * wall_column / WIDTH - 1 
 
         RayStartX = PlayerXfloat
         RayStartY = PlayerYfloat
@@ -160,8 +152,8 @@ while running:
 
         RayDirectionX, RayDirectionY = RayDir.flatten()
 
-        deltaDistanceX = abs(1.0 / RayDirectionX)
-        deltaDistanceY = abs(1.0 / RayDirectionY)
+        deltaDistanceX = abs(1.0 / (RayDirectionX + 0.0000001))
+        deltaDistanceY = abs(1.0 / (RayDirectionY + 0.0000001))
 
         RayEndX = PlayerX
         RayEndY = PlayerY
@@ -215,20 +207,21 @@ while running:
         endX = CIRCLE_CORD_X + RayDeltaX * MapBlkWid
         endY = CIRCLE_CORD_Y + RayDeltaY * MapBlkHie
         if scene == 1:
+            # Draw Rays
             pygame.draw.line(screen, "purple", (CIRCLE_CORD_X, CIRCLE_CORD_Y), (endX, endY), 1)
         if scene == 2:
-            pygame.draw.line(screen, "green", (CIRCLE_CORD_X, CIRCLE_CORD_Y), (endX, endY), 1)
+            WallHeight = abs(int(HEIGHT/(perpWallDist + 0.0000001)))
+            DrawStart = HEIGHT/2 - WallHeight/2  
+            if DrawStart < 0:
+                DrawStart = 0
+            
+            DrawEnd = HEIGHT/2 + WallHeight/2 
+            if DrawEnd > HEIGHT:
+                DrawEnd = HEIGHT - 1
+            color_index = map[RayEndY,RayEndX]
+            pygame.draw.line(screen, WallColors_s2[color_index], (wall_column, DrawStart), (wall_column, DrawEnd), COLUMNWIDTH)
   
 #--------------------------------DRAW RAY LOOP END-------------------------------
-    # if keys.get(K_F1, False):
-    #     if scene == 1:
-    #         scene = 2
-    #     else:
-    #         scene = 1 
-
-    # if keys.get(K_F2, False):
-    #     scene = 2
-
 
     if keys.get(K_UP, False):
         ProbX = CIRCLE_CORD_X + directionX * SPEED
@@ -280,10 +273,6 @@ while running:
     if scene == 1:
         pygame.draw.line(screen,"purple", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
         pygame.draw.circle(screen,"red", (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
-    
-    if scene == 2:
-        pygame.draw.line(screen,"green", (CIRCLE_CORD_X,CIRCLE_CORD_Y),(CIRCLE_CORD_X + directionX*SPEED*5, CIRCLE_CORD_Y + directionY*SPEED*5),2)
-        pygame.draw.circle(screen,[0,150,150], (CIRCLE_CORD_X, CIRCLE_CORD_Y), 2.5,1)
 
     pygame.draw.rect(screen, (100, 100, 200), (0, HEIGHT - HUD_HEIGHT, HUD_WIDTH, HUD_WIDTH))
     screen.blit(HUD, (20, HEIGHT - 30))
