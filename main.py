@@ -3,25 +3,15 @@ from pygame.locals import *
 import numpy as np
 from math import sqrt
 from Config import *
-
+from Player import Player
 
 keys = {}
-directionX = INIT_DIR_X
-directionY = INIT_DIR_Y
 
-planeX = 0.0
-planeY = FOV
-
-DirVec = np.array([[directionX],[directionY]])
-
-PlaVec = np.array([[planeX]    ,[planeY]])
-
-PlayerCordX = INIT_PLAYER_X
-PlayerCordY = INIT_PLAYER_Y
+player = Player()
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-clock = pygame.time.Clock()
+clock  = pygame.time.Clock()
 def close():
     pygame.display.quit()
     pygame.quit()
@@ -62,21 +52,21 @@ while running:
     pygame.display.set_caption("Pyray V 0.1.0")
     dispObj = pygame.Rect((0,0),(WIDTH, HEIGHT))
 
-    planeX,planeY = PlaVec.flatten()
-    directionX,directionY = DirVec.flatten()
-
     screen.fill("black", dispObj)
 
     #Calculate player Grid Corrdinates
 
-    PlayerXfloat = PlayerCordX / MAP_BLK_WID
-    PlayerYfloat = PlayerCordY / MAP_BLK_HIE
+    PlayerXGridFloat:float = player.Xcord / MAP_BLK_WID
+    """Player X Grid Coordinates as float"""
+    
+    PlayerYGridFloat:float = player.Ycord / MAP_BLK_HIE
+    '''Player Y Grid Coordinates as float'''
 
-    PlayerXint = int(PlayerXfloat)
-    PlayerYint = int(PlayerYfloat)
+    PlayerXGridindex:int = min(int(PlayerXGridFloat), COLUMNS - 1)
+    '''Player X Grid Coordinates as int (index)'''
 
-    PlayerXint = min(PlayerXint, COLUMNS - 1)
-    PlayerYint = min(PlayerYint, ROWS - 1)
+    PlayerYGridindex:int = min(int(PlayerYGridFloat), ROWS - 1)
+    '''Player Y Grid Coordinates as int (index)'''
 
 
     # Draw BackGround
@@ -96,18 +86,18 @@ while running:
         #sweeps from -1 to 1 for cameraX value
         cameraX = 2 * wall_column / WIDTH - 1 
 
-        RayStartX = PlayerXfloat
-        RayStartY = PlayerYfloat
+        RayStartX = PlayerXGridFloat
+        RayStartY = PlayerYGridFloat
 
-        RayDir = DirVec + (cameraX * PlaVec)
+        RayDir = player.DirVec + (cameraX * player.PlaVec)
 
         RayDirectionX, RayDirectionY = RayDir.flatten()
 
         deltaDistanceX = abs(1.0 / (RayDirectionX + 0.0000001))
         deltaDistanceY = abs(1.0 / (RayDirectionY + 0.0000001))
 
-        RayEndX = PlayerXint
-        RayEndY = PlayerYint
+        RayEndX = PlayerXGridindex
+        RayEndY = PlayerYGridindex
 
         if (RayDirectionX < 0):
             stepX = -1
@@ -152,16 +142,16 @@ while running:
         HitWallY = RayStartY + RayDirectionY * perpWallDist
 
         # Calculate the delta in MAP units from player to wall hit point
-        RayDeltaX = HitWallX - PlayerXfloat
-        RayDeltaY = HitWallY - PlayerYfloat
+        RayDeltaX = HitWallX - PlayerXGridFloat
+        RayDeltaY = HitWallY - PlayerYGridFloat
 
-        endX = PlayerCordX + RayDeltaX * MAP_BLK_WID
-        endY = PlayerCordY + RayDeltaY * MAP_BLK_HIE
+        endX = player.Xcord + RayDeltaX * MAP_BLK_WID
+        endY = player.Ycord + RayDeltaY * MAP_BLK_HIE
         if scene == 1:
             # Draw Rays
-            pygame.draw.line(screen, "purple", (PlayerCordX, PlayerCordY), (endX, endY), 1)
+            pygame.draw.line(screen, "purple", (player.Xcord, player.Ycord), (endX, endY), 1)
         if scene == 2:
-            WallHeight = abs(int(HEIGHT/(perpWallDist + 0.0000001)))
+            WallHeight:int = abs(HEIGHT//(perpWallDist + 0.0000001))
             DrawStart = HEIGHT/2 - WallHeight/2  
             if DrawStart < 0:
                 DrawStart = 0
@@ -179,57 +169,48 @@ while running:
     DeltaY = 0
 
     if keys.get(K_UP, False):
-        ProbX = PlayerCordX + directionX * SPEED
-        ProbY = PlayerCordY + directionY * SPEED
+        ProbX = player.Xcord + player.dirX * SPEED
+        ProbY = player.Ycord + player.dirY * SPEED
 
 
         nextCol = int(ProbX / MAP_BLK_WID)
         nextCol =  min(nextCol, COLUMNS - 1)
 
-        if not MAP[PlayerYint, nextCol] :
-            DeltaX = directionX * SPEED
+        if not MAP[PlayerYGridindex, nextCol] :
+            DeltaX = player.dirX * SPEED
 
         nextRow = int(ProbY / MAP_BLK_HIE)
         nextRow = max(0, min(nextRow, ROWS - 1))
 
-        if not MAP[nextRow, PlayerXint] :
-            DeltaY = directionY * SPEED
+        if not MAP[nextRow, PlayerXGridindex] :
+            DeltaY = player.dirY * SPEED
 
     if keys.get(K_DOWN, False):
-        ProbX = PlayerCordX - directionX * SPEED
-        ProbY = PlayerCordY - directionY * SPEED
+        ProbX = player.Xcord - player.dirX * SPEED
+        ProbY = player.Ycord - player.dirY * SPEED
 
         nextCol = int(ProbX / MAP_BLK_WID)
         nextCol = max(0, min(nextCol, COLUMNS - 1))
-        if MAP[PlayerYint, nextCol] == 0:
-            DeltaX = -directionX * SPEED
+        if MAP[PlayerYGridindex, nextCol] == 0:
+            DeltaX = -player.dirX * SPEED
 
         nextRow = int(ProbY / MAP_BLK_HIE)
         nextRow = max(0, min(nextRow, ROWS - 1))
-        if MAP[nextRow, PlayerXint] == 0:
-            DeltaY = -directionY * SPEED
+        if MAP[nextRow, PlayerXGridindex] == 0:
+            DeltaY = -player.dirY * SPEED
 
-    PlayerCordX += DeltaX
-    PlayerCordY += DeltaY
-
-
-
-    # Boundary checks for screen edges
-    PlayerCordX = max(0, min(PlayerCordX, WIDTH))
-    PlayerCordY = max(0, min(PlayerCordY, HEIGHT))
-
+    player.Move(DeltaX, DeltaY)
 
     if keys.get(K_LEFT, False):
-        DirVec = ROTATE_ACW @ DirVec
-        PlaVec = ROTATE_ACW @ PlaVec
+        player.DirVec = ROTATE_ACW @ player.DirVec
+        player.PlaVec = ROTATE_ACW @ player.PlaVec
 
     if keys.get(K_RIGHT, False):
-        DirVec = ROTATE_CW @ DirVec
-        PlaVec = ROTATE_CW @ PlaVec
+        player.DirVec = ROTATE_CW @ player.DirVec
+        player.PlaVec = ROTATE_CW @ player.PlaVec
 
     if scene == 1:
-        pygame.draw.line(screen,"purple", (PlayerCordX,PlayerCordY),(PlayerCordX + directionX*SPEED*5, PlayerCordY + directionY*SPEED*5),2)
-        pygame.draw.circle(screen,"red", (PlayerCordX, PlayerCordY), 2.5,1)
+        pygame.draw.circle(screen,"red",  (player.Xcord, player.Ycord), 2.5,1)
 
     pygame.draw.rect(screen, (100, 100, 200), (0, HEIGHT - HUD_HEIGHT, HUD_WIDTH, HUD_WIDTH))
     screen.blit(HUD, (20, HEIGHT - 30))

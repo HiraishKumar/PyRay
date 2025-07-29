@@ -1,9 +1,18 @@
 import numpy as np
 from numpy import ndarray 
+from math import sin, cos, pi 
+INIT_DIR_X:float = 1.0
+INIT_DIR_Y:float = 0.0
+
+FOV = 1.0
+#rotate clockwise by 90 degrees 
+INIT_PLAN_X:float = (INIT_DIR_X*cos(-pi/2) + INIT_DIR_Y*sin(-pi/2)) * FOV
+INIT_PLAN_Y:float = (- INIT_DIR_X*sin(-pi/2) + INIT_DIR_Y*cos(-pi/2)) * FOV
+
 
 WIDTH:int= 800
 HEIGHT:int = 600
-
+FOV:float = 1.0
 
 SPEED:int = 2 
 SPRINT:int = 1
@@ -13,8 +22,8 @@ FOV:float = 1.0
 '''Y component of the planer vector Perpendicular to INIT_DIR_VEC,
 See Config.py to change FOV '''
 
-INIT_DIR_X:float = 1.0
-INIT_DIR_Y:float = 0.0
+
+
 
 COLUMN_WIDTH:int = 4
 

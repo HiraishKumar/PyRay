@@ -27,3 +27,7 @@
 28 JUNE 2025
     Created config File to modularize the Code
     fixed color index Bug
+
+29 JUNE 2025
+    Created and Implemented Player Class
+    Fixed Incorrect FOV Defining Logic 
