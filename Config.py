@@ -10,12 +10,20 @@ INIT_PLAN_X:float = (INIT_DIR_X*cos(-pi/2) + INIT_DIR_Y*sin(-pi/2)) * FOV
 INIT_PLAN_Y:float = (- INIT_DIR_X*sin(-pi/2) + INIT_DIR_Y*cos(-pi/2)) * FOV
 
 
+
 WIDTH:int= 800
 HEIGHT:int = 600
 FOV:float = 1.0
 
-SPEED:int = 2 
-SPRINT:int = 1
+SPEED:float = 1.5 
+SPRINT_SPEED:float = 2.0
+DASH_SPEED:float = 5.0
+
+DASHING = 1.0
+NOT_DASHING = 2.0
+
+DASH_DURATION = 8
+
 ROTATION_SPEED:float   = 0.08
 RAY_COUNT:int = 30
 FOV:float = 1.0
@@ -60,8 +68,8 @@ MAP_BLK_WID:int = WIDTH / COLUMNS
 
 MAP_BLK_HIE:int = HEIGHT / ROWS
 
-HUD_HEIGHT:int = HEIGHT / ROWS
-HUD_WIDTH:int = WIDTH
+HUD_BACK_HEIGHT:int = HEIGHT / ROWS
+HUD_BACK_WIDTH:int = WIDTH
 
 ROTATE_CW: ndarray = np.array([[np.cos(ROTATION_SPEED), np.sin(-ROTATION_SPEED)],
                      [np.sin(ROTATION_SPEED), np.cos( ROTATION_SPEED)]])

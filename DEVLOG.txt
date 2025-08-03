@@ -31,3 +31,10 @@
 29 JUNE 2025
     Created and Implemented Player Class
     Fixed Incorrect FOV Defining Logic 
+
+3 AUG 2025
+    Added FOV Slider
+    Added Speed Slider
+    Added DASH mechanic
+
+-------------------------------------DONE---------------------------------

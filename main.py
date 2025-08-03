@@ -1,27 +1,42 @@
 import pygame
 from pygame.locals import *
-import numpy as np
-from math import sqrt
 from Config import *
 from Player import Player
+import pygame_widgets
+from pygame_widgets.slider import Slider
+from pygame_widgets.textbox import TextBox
 
 keys = {}
 
 player = Player()
 
+SpeedModifier = 1.0 
+state = NOT_DASHING
+DashDuration = DASH_DURATION
+CanDash = True
+
+fov = FOV
+Speed = SPEED
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock  = pygame.time.Clock()
+
+FOVslider = Slider(screen, 25, 25, 200, 10, min=0.1, max=5.0, step=0.1, initial = 0.8)
+FOVsliderOut = TextBox(screen, 250, 15, 50, 30, fontSize=15)
+SPEEDslider = Slider(screen, 25, 45, 200, 10, min=0.1, max=5.0, step=0.1, initial = SPEED)
+SPEEDsliderOut = TextBox(screen, 250, 40, 50, 30, fontSize=15)
+
 def close():
     pygame.display.quit()
     pygame.quit()
-#Lower Hud
+#Lower HUD_TEXT
 scene = 1
 font = pygame.font.SysFont("Times New Roman", 20)
 
 running = True
 while running:
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         match event.type:
             case pygame.KEYDOWN:
                 if event.key == K_ESCAPE:
@@ -39,6 +54,8 @@ while running:
 
             case pygame.KEYUP:
                 keys[event.key] = False
+                if event.key == K_SPACE:
+                    CanDash = True
 
             case pygame.QUIT:
                 running = False
@@ -48,7 +65,9 @@ while running:
     if not running:
         break
 
-    HUD = font.render(f"Currently On Scene {scene}, To change Scene Press F1/F2", True, (0, 0, 0)) 
+    HUD_TEXT = font.render(f"Currently On Scene {scene}, To change Scene Press F1", True, (255,255,255)) 
+    FOV_SLIDER_TEXT = font.render("FOV", True, (255,255,255)) 
+    SPEED_SLIDER_TEXT = font.render("SPEED", True, (255,255,255)) 
     pygame.display.set_caption("Pyray V 0.1.0")
     dispObj = pygame.Rect((0,0),(WIDTH, HEIGHT))
 
@@ -81,7 +100,7 @@ while running:
                     pygame.draw.rect(screen, WallColors_s1[BlockType], [col * MAP_BLK_WID, row * MAP_BLK_HIE, MAP_BLK_WID, MAP_BLK_HIE])
 
     #Draw Rays
-    
+    player.PlaVec *= fov
     for wall_column in range(0,WIDTH,COLUMN_WIDTH):
         #sweeps from -1 to 1 for cameraX value
         cameraX = 2 * wall_column / WIDTH - 1 
@@ -133,8 +152,6 @@ while running:
             perpWallDist = (RayEndX - RayStartX + (1.0 - stepX) / 2.0) / RayDirectionX
         else: # Y-side hit
             perpWallDist = (RayEndY - RayStartY + (1.0 - stepY) / 2.0) / RayDirectionY
-
-        # perpWallDist = sqrt((RayEndX - RayStartX)**2 + (RayEndY - RayStartY )**2 )
         
         # Calculate the actual end point for drawing the ray
         # These are in MAP units
@@ -161,43 +178,58 @@ while running:
                 DrawEnd = HEIGHT - 1
             color_index = MAP[RayEndY,RayEndX]
             pygame.draw.line(screen, WallColors_s2[color_index], (wall_column, DrawStart), (wall_column, DrawEnd), COLUMN_WIDTH)
-  
+    player.PlaVec /= fov
 #--------------------------------DRAW RAY LOOP END-------------------------------
-    # reset values if DeltaX and DeltaY from prior Tick for current Tick
 
+    # reset values if DeltaX and DeltaY from prior Tick for current Tick
     DeltaX = 0
     DeltaY = 0
+    SpeedModifier = 1.0
+
+    if keys.get(K_LSHIFT, False):
+        SpeedModifier = SPRINT_SPEED
+    
+    if keys.get(K_SPACE, False) and state == NOT_DASHING and CanDash:
+        state = DASHING
+        DashDuration = DASH_DURATION
+        CanDash = False
+        
+    if state == DASHING:
+        SpeedModifier = DASH_SPEED
+        DashDuration -= 1
+        if DashDuration <= 0:
+            state = NOT_DASHING
 
     if keys.get(K_UP, False):
-        ProbX = player.Xcord + player.dirX * SPEED
-        ProbY = player.Ycord + player.dirY * SPEED
+        ProbX = player.Xcord + player.dirX * Speed * SpeedModifier
+        ProbY = player.Ycord + player.dirY * Speed * SpeedModifier
 
 
         nextCol = int(ProbX / MAP_BLK_WID)
         nextCol =  min(nextCol, COLUMNS - 1)
 
         if not MAP[PlayerYGridindex, nextCol] :
-            DeltaX = player.dirX * SPEED
+            DeltaX = player.dirX * Speed * SpeedModifier
 
         nextRow = int(ProbY / MAP_BLK_HIE)
         nextRow = max(0, min(nextRow, ROWS - 1))
 
         if not MAP[nextRow, PlayerXGridindex] :
-            DeltaY = player.dirY * SPEED
+            DeltaY = player.dirY * Speed * SpeedModifier
 
     if keys.get(K_DOWN, False):
-        ProbX = player.Xcord - player.dirX * SPEED
-        ProbY = player.Ycord - player.dirY * SPEED
+        ProbX = player.Xcord - player.dirX * Speed * SpeedModifier
+        ProbY = player.Ycord - player.dirY * Speed * SpeedModifier
 
         nextCol = int(ProbX / MAP_BLK_WID)
         nextCol = max(0, min(nextCol, COLUMNS - 1))
         if MAP[PlayerYGridindex, nextCol] == 0:
-            DeltaX = -player.dirX * SPEED
+            DeltaX = -player.dirX * Speed * SpeedModifier
 
         nextRow = int(ProbY / MAP_BLK_HIE)
         nextRow = max(0, min(nextRow, ROWS - 1))
         if MAP[nextRow, PlayerXGridindex] == 0:
-            DeltaY = -player.dirY * SPEED
+            DeltaY = -player.dirY * Speed * SpeedModifier
 
     player.Move(DeltaX, DeltaY)
 
@@ -211,9 +243,17 @@ while running:
 
     if scene == 1:
         pygame.draw.circle(screen,"red",  (player.Xcord, player.Ycord), 2.5,1)
-
-    pygame.draw.rect(screen, (100, 100, 200), (0, HEIGHT - HUD_HEIGHT, HUD_WIDTH, HUD_WIDTH))
-    screen.blit(HUD, (20, HEIGHT - 30))
+    
+    screen.blit(HUD_TEXT, (20, HEIGHT - 30))
+    screen.blit(FOV_SLIDER_TEXT, (310,18))
+    screen.blit(SPEED_SLIDER_TEXT, (310,45))
+    FOVSliderVal = FOVslider.getValue()
+    SPEEDSliderVal = SPEEDslider.getValue()
+    FOVsliderOut.setText(" "+str(FOVSliderVal))
+    SPEEDsliderOut.setText(" "+str(SPEEDSliderVal))
+    fov = FOVSliderVal
+    Speed = SPEEDSliderVal
+    pygame_widgets.update(events)
     pygame.display.flip()
     clock.tick(60.0)
 
