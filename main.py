@@ -68,7 +68,7 @@ while running:
     HUD_TEXT = font.render(f"Currently On Scene {scene}, To change Scene Press F1", True, (255,255,255)) 
     FOV_SLIDER_TEXT = font.render("FOV", True, (255,255,255)) 
     SPEED_SLIDER_TEXT = font.render("SPEED", True, (255,255,255)) 
-    pygame.display.set_caption("Pyray V 0.1.0")
+    pygame.display.set_caption("Pyray V 0.2.0")
     dispObj = pygame.Rect((0,0),(WIDTH, HEIGHT))
 
     screen.fill("black", dispObj)
