@@ -27,8 +27,6 @@ DASH_DURATION = 8
 ROTATION_SPEED:float   = 0.08
 RAY_COUNT:int = 30
 FOV:float = 1.0
-'''Y component of the planer vector Perpendicular to INIT_DIR_VEC,
-See Config.py to change FOV '''
 
 
 
