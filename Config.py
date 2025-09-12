@@ -9,8 +9,6 @@ FOV = 1.0
 INIT_PLAN_X:float = (INIT_DIR_X*cos(-pi/2) + INIT_DIR_Y*sin(-pi/2)) * FOV
 INIT_PLAN_Y:float = (- INIT_DIR_X*sin(-pi/2) + INIT_DIR_Y*cos(-pi/2)) * FOV
 
-
-
 WIDTH:int= 800
 HEIGHT:int = 600
 FOV:float = 1.0
