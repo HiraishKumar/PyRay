@@ -2,9 +2,16 @@ GOAL of this thing
     Make a RayCaster with a UI which must have: 
         -Scene Transition from 2D to 3D {DONE}
         -basic UI
+
+
             - FOV Slider {DONE}
             - Speed Slider {DONE}
         -Movement with:
             -Sprint {DONE}
             -Dash {DONE}
-            
+ 
+:!q
+A::
+B
+B
+          
